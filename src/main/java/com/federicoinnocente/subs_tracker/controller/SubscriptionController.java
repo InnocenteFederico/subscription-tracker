@@ -12,16 +12,16 @@ import java.util.List;
 @AllArgsConstructor
 public class SubscriptionController {
 
-    private final SubscriptionService subscriptionService;
+    private final SubscriptionService subscriptionServiceInterface;
 
     @GetMapping
     public List<SubscriptionDTO> getSubscriptions() {
-        return subscriptionService.findAll();
+        return subscriptionServiceInterface.findAll();
     }
 
     @PostMapping
     public void addSubscription(@RequestBody SubscriptionDTO subscription) {
-        subscriptionService.save(subscription);
+        subscriptionServiceInterface.save(subscription);
     }
 
 }
