@@ -1,1 +1,1 @@
-# subscription-tracker
+App fullstack per tracciare abbonamenti personali. Stack: Java 21, Spring Boot 3, Vue 3, PostgreSQL.# subscription-tracker
