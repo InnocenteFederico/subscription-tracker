@@ -24,4 +24,5 @@ jobs:
           cache: maven
 
       - name: Build e test
+        working-directory: backend
         run: ./mvnw -B test
