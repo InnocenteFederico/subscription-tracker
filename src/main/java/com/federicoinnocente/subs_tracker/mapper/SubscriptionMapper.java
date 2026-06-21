@@ -1,7 +1,7 @@
 package com.federicoinnocente.subs_tracker.mapper;
 
-import com.federicoinnocente.subs_tracker.entity.Subscription;
 import com.federicoinnocente.subs_tracker.dto.SubscriptionDTO;
+import com.federicoinnocente.subs_tracker.entity.SubscriptionEntity;
 import org.mapstruct.Mapper;
 
 import java.util.List;
@@ -9,9 +9,10 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface SubscriptionMapper {
 
-    SubscriptionDTO toDto(Subscription subscription);
+    SubscriptionDTO toDto(SubscriptionEntity subscription);
 
-    Subscription toEntity(SubscriptionDTO subscriptionDTO);
+    SubscriptionEntity toEntity(SubscriptionDTO subscriptionDTO);
 
-    List<SubscriptionDTO> toDtoList(List<Subscription> subscriptionList);
+    List<SubscriptionDTO> toDtoList(List<SubscriptionEntity> subscriptionList);
+
 }

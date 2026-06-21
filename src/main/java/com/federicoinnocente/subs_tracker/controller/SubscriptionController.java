@@ -2,26 +2,40 @@ package com.federicoinnocente.subs_tracker.controller;
 
 import com.federicoinnocente.subs_tracker.dto.SubscriptionDTO;
 import com.federicoinnocente.subs_tracker.service.SubscriptionService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import javax.swing.*;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/subscriptions")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class SubscriptionController {
 
-    private final SubscriptionService subscriptionServiceInterface;
+    private final SubscriptionService subscriptionService;
 
     @GetMapping
     public List<SubscriptionDTO> getSubscriptions() {
-        return subscriptionServiceInterface.findAll();
+        return subscriptionService.getSubscriptions();
     }
 
     @PostMapping
-    public void addSubscription(@RequestBody SubscriptionDTO subscription) {
-        subscriptionServiceInterface.save(subscription);
+    public List<SubscriptionDTO> addSubscription(@RequestBody SubscriptionDTO subscription) {
+        subscriptionService.saveSubscription(subscription);
+        return subscriptionService.getSubscriptions();
     }
+
+    @PatchMapping("/{id}")
+    public List<SubscriptionDTO> deactivateSubscription(@PathVariable Long id) {
+        subscriptionService.deactivateSubscription(id);
+        return subscriptionService.getSubscriptions();
+    }
+
+    @GetMapping("/upcoming")
+    public List<SubscriptionDTO> getUpcomingSubscriptions(@RequestParam(defaultValue = "30") int days) {
+        return subscriptionService.getUpcomingSubscriptions(days);
+    }
+
 
 }

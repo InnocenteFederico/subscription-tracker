@@ -8,22 +8,16 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "SUBSCRIPTION")
+@Table(name = "SUBSCRIPTIONS")
 @Getter
 @Setter
-public class Subscription {
+public class SubscriptionEntity {
 
     @Id
     @Column(name = "SUBSCRIPTION_ID")
     @SequenceGenerator(name = "subscription_seq", sequenceName = "SEQ_SUBSCRIPTION", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "subscription_seq")
     private Long id;
-
-    @Column(name = "USER_ID")
-    private Long userId;
-
-    @Column(name = "CATEGORY_ID")
-    private Long categoryId;
 
     @Column(name = "NAME")
     private String name;
@@ -48,10 +42,17 @@ public class Subscription {
     private LocalDate nextBilling;
 
     @Column(name = "IS_ACTIVE")
-    private boolean isActive;
+    private boolean active;
 
     @Column(name = "NOTES")
     private String notes;
 
+    @ManyToOne
+    @JoinColumn(name = "USER_ID")
+    private AppUserEntity user;
+
+    @ManyToOne
+    @JoinColumn(name = "CATEGORY_ID")
+    private CategoryEntity category;
 
 }

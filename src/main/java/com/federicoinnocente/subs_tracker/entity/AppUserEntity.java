@@ -15,7 +15,7 @@ import java.util.List;
 @Getter
 @Setter
 @Table(name = "APP_USER")
-public class AppUser implements UserDetails {
+public class AppUserEntity implements UserDetails {
 
     @Id
     @Column(name = "USER_ID")
@@ -31,6 +31,12 @@ public class AppUser implements UserDetails {
 
     @Column(name = "PASSWORD_HASH", nullable = false)
     private String passwordHash;
+
+    @OneToMany(mappedBy = "user")
+    private List<SubscriptionEntity> subscriptions;
+
+    @OneToMany(mappedBy = "user")
+    private List<CategoryEntity> categories;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
