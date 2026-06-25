@@ -47,8 +47,9 @@ function closeModal() {
   showModal.value = false
 }
 
-function onSubmitted(updatedList) {
+async function onSubmitted(updatedList) {
   subscriptions.value = updatedList
+  summary.value = (await api.getSummary()).data
   closeModal()
 }
 
@@ -56,6 +57,7 @@ async function onDeactivate(subscription) {
   subscription.active = false
   const response = await api.updateSubscription(subscription)
   subscriptions.value = response.data
+  summary.value = (await api.getSummary()).data
 }
 
 const pieChartParam = computed(() => {
