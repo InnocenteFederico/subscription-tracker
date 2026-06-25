@@ -17,7 +17,7 @@ const showModal = ref(false)
 const modalRef = ref(null)
 const summary = ref(null)
 
-onMounted(async () => {
+async function loadData() {
   isLoading.value = true
   try {
     const [subRes, catRes, sumRes] = await Promise.all([
@@ -31,7 +31,9 @@ onMounted(async () => {
   } finally {
     isLoading.value = false
   }
-})
+}
+
+onMounted(loadData)
 
 function openAddModal() {
   modalRef.value?.open()
@@ -47,17 +49,15 @@ function closeModal() {
   showModal.value = false
 }
 
-async function onSubmitted(updatedList) {
-  subscriptions.value = updatedList
-  summary.value = (await api.getSummary()).data
+async function onSubmitted() {
+  await loadData()
   closeModal()
 }
 
 async function onDeactivate(subscription) {
   subscription.active = false
-  const response = await api.updateSubscription(subscription)
-  subscriptions.value = response.data
-  summary.value = (await api.getSummary()).data
+  await api.updateSubscription(subscription)
+  await loadData()
 }
 
 const pieChartParam = computed(() => {

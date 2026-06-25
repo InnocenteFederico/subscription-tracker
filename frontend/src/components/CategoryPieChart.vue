@@ -1,6 +1,6 @@
 <script setup>
 import Chart from 'chart.js/auto'
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 
 const props = defineProps({
   title: { type: String, default: '' },
@@ -50,6 +50,18 @@ onMounted(() => {
     }
   })
 })
+
+watch(
+  () => [props.labels, props.data, props.bgColor],
+  ([labels, data, bgColor]) => {
+    if (!chartInstance) return
+    chartInstance.data.labels = labels
+    chartInstance.data.datasets[0].data = data
+    chartInstance.data.datasets[0].backgroundColor = bgColor
+    chartInstance.update()
+  },
+  { deep: true }
+)
 
 onBeforeUnmount(() => {
   chartInstance?.destroy()
