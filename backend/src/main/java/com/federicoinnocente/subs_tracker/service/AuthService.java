@@ -20,7 +20,7 @@ public class AuthService {
     private final AppUserRepository userRepository;
 
     public AuthResponse register(RegisterRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (!validateRegisterEmail(request)) {
             throw new RuntimeException("Email " + request.getEmail() + " già registrata");
         }
         AppUserEntity user = new AppUserEntity();
@@ -39,5 +39,15 @@ public class AuthService {
             throw new RuntimeException("Invalid Password");
         }
         return new AuthResponse(jwtService.generateToken(user.getUsername()));
+    }
+
+    private boolean validateRegisterEmail(RegisterRequest request) {
+        String email = request.getEmail();
+        if (email.isBlank()) return false;
+        if (!email.matches("^[^@]+@[^@]+\\.[^@]+$")) return false;
+
+        if (userRepository.existsByEmail(email)) return false;
+
+        return true;
     }
 }

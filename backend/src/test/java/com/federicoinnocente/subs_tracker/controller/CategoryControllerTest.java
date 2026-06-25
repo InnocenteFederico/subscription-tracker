@@ -15,10 +15,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -52,5 +52,23 @@ class CategoryControllerTest {
                 .andExpect(status().isOk());
 
         verify(categoryService).addCategory(any());
+    }
+
+    @Test
+    void updateCategory_callsServiceWithIdAndBody() throws Exception {
+        mockMvc.perform(patch("/api/categories/5")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"Updated\",\"color\":\"#00FF00\"}"))
+                .andExpect(status().isOk());
+
+        verify(categoryService).updateCategory(eq(5L), any());
+    }
+
+    @Test
+    void deleteCategory_callsServiceWithId() throws Exception {
+        mockMvc.perform(delete("/api/categories/5"))
+                .andExpect(status().isOk());
+
+        verify(categoryService).deleteCategory(5L);
     }
 }

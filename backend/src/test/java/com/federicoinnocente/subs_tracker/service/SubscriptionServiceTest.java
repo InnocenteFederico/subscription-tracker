@@ -20,6 +20,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -34,7 +35,7 @@ class SubscriptionServiceTest {
     @InjectMocks SubscriptionService subscriptionService;
 
     @Test
-    void getSubscriptions_returnsMappedList() {
+    void getSubscriptions_withNoFilter_returnsAllSubscriptions() {
         List<SubscriptionEntity> entities = List.of(new SubscriptionEntity());
         List<SubscriptionDTO> dtos = List.of(new SubscriptionDTO());
 
@@ -42,9 +43,43 @@ class SubscriptionServiceTest {
         when(subscriptionRepository.findByUser_Email("user@example.com")).thenReturn(entities);
         when(mapper.toDtoList(entities)).thenReturn(dtos);
 
-        List<SubscriptionDTO> result = subscriptionService.getSubscriptions();
+        List<SubscriptionDTO> result = subscriptionService.getSubscriptions(null);
 
         assertEquals(1, result.size());
+        verify(subscriptionRepository).findByUser_Email("user@example.com");
+        verify(subscriptionRepository, never()).findByUser_EmailAndActive(any(), anyBoolean());
+    }
+
+    @Test
+    void getSubscriptions_withActiveTrue_returnsOnlyActiveSubscriptions() {
+        List<SubscriptionEntity> entities = List.of(new SubscriptionEntity());
+        List<SubscriptionDTO> dtos = List.of(new SubscriptionDTO());
+
+        when(sessionContext.getEmail()).thenReturn("user@example.com");
+        when(subscriptionRepository.findByUser_EmailAndActive("user@example.com", true)).thenReturn(entities);
+        when(mapper.toDtoList(entities)).thenReturn(dtos);
+
+        List<SubscriptionDTO> result = subscriptionService.getSubscriptions(true);
+
+        assertEquals(1, result.size());
+        verify(subscriptionRepository).findByUser_EmailAndActive("user@example.com", true);
+        verify(subscriptionRepository, never()).findByUser_Email(any());
+    }
+
+    @Test
+    void getSubscriptions_withActiveFalse_returnsOnlyInactiveSubscriptions() {
+        List<SubscriptionEntity> entities = List.of(new SubscriptionEntity());
+        List<SubscriptionDTO> dtos = List.of(new SubscriptionDTO());
+
+        when(sessionContext.getEmail()).thenReturn("user@example.com");
+        when(subscriptionRepository.findByUser_EmailAndActive("user@example.com", false)).thenReturn(entities);
+        when(mapper.toDtoList(entities)).thenReturn(dtos);
+
+        List<SubscriptionDTO> result = subscriptionService.getSubscriptions(false);
+
+        assertEquals(1, result.size());
+        verify(subscriptionRepository).findByUser_EmailAndActive("user@example.com", false);
+        verify(subscriptionRepository, never()).findByUser_Email(any());
     }
 
     @Test
@@ -83,46 +118,14 @@ class SubscriptionServiceTest {
     }
 
     @Test
-    void deactivateSubscription_throwsWhenNotFound() {
+    void updateSubscription_throwsWhenNotFound() {
         when(subscriptionRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class, () -> subscriptionService.deactivateSubscription(99L));
+        assertThrows(RuntimeException.class, () -> subscriptionService.updateSubscription(99L, new SubscriptionDTO()));
     }
 
     @Test
-    void deactivateSubscription_setsActiveToFalse_whenUserMatches() {
-        AppUserEntity owner = new AppUserEntity();
-        owner.setEmail("user@example.com");
-
-        SubscriptionEntity sub = new SubscriptionEntity();
-        sub.setActive(true);
-        sub.setNextBilling(LocalDate.now());
-        sub.setUser(owner);
-
-        when(subscriptionRepository.findById(1L)).thenReturn(Optional.of(sub));
-        when(sessionContext.getEmail()).thenReturn("user@example.com");
-
-        subscriptionService.deactivateSubscription(1L);
-
-        assertFalse(sub.isActive());
-        assertNull(sub.getNextBilling());
-        verify(subscriptionRepository).save(sub);
-    }
-
-    @Test
-    void deactivateSubscription_doesNothing_whenAlreadyInactive() {
-        SubscriptionEntity sub = new SubscriptionEntity();
-        sub.setActive(false);
-
-        when(subscriptionRepository.findById(1L)).thenReturn(Optional.of(sub));
-
-        subscriptionService.deactivateSubscription(1L);
-
-        verify(subscriptionRepository, never()).save(any());
-    }
-
-    @Test
-    void deactivateSubscription_doesNothing_whenUserDoesNotMatch() {
+    void updateSubscription_throwsWhenUserDoesNotMatch() {
         AppUserEntity owner = new AppUserEntity();
         owner.setEmail("owner@example.com");
 
@@ -133,10 +136,84 @@ class SubscriptionServiceTest {
         when(subscriptionRepository.findById(1L)).thenReturn(Optional.of(sub));
         when(sessionContext.getEmail()).thenReturn("intruder@example.com");
 
-        subscriptionService.deactivateSubscription(1L);
-
+        assertThrows(RuntimeException.class, () -> subscriptionService.updateSubscription(1L, new SubscriptionDTO()));
         verify(subscriptionRepository, never()).save(any());
+    }
+
+    @Test
+    void updateSubscription_withActiveFalse_deactivatesOnly() {
+        AppUserEntity owner = new AppUserEntity();
+        owner.setEmail("user@example.com");
+
+        SubscriptionEntity sub = new SubscriptionEntity();
+        sub.setActive(true);
+        sub.setNextBilling(LocalDate.now());
+        sub.setUser(owner);
+
+        SubscriptionDTO dto = new SubscriptionDTO();
+        dto.setActive(false);
+
+        when(subscriptionRepository.findById(1L)).thenReturn(Optional.of(sub));
+        when(sessionContext.getEmail()).thenReturn("user@example.com");
+
+        subscriptionService.updateSubscription(1L, dto);
+
+        assertFalse(sub.isActive());
+        assertNull(sub.getNextBilling());
+        verify(subscriptionRepository).save(sub);
+    }
+
+    @Test
+    void updateSubscription_withActiveTrue_updatesAllFields() {
+        AppUserEntity owner = new AppUserEntity();
+        owner.setEmail("user@example.com");
+
+        SubscriptionEntity sub = new SubscriptionEntity();
+        sub.setUser(owner);
+        sub.setActive(true);
+
+        SubscriptionDTO dto = new SubscriptionDTO();
+        dto.setActive(true);
+        dto.setName("Spotify");
+        dto.setDescription("Music");
+        dto.setNotes("note");
+
+        when(subscriptionRepository.findById(1L)).thenReturn(Optional.of(sub));
+        when(sessionContext.getEmail()).thenReturn("user@example.com");
+
+        subscriptionService.updateSubscription(1L, dto);
+
+        assertEquals("Spotify", sub.getName());
+        assertEquals("Music", sub.getDescription());
+        assertEquals("note", sub.getNotes());
         assertTrue(sub.isActive());
+        verify(categoryRepository, never()).getReferenceById(any());
+        verify(subscriptionRepository).save(sub);
+    }
+
+    @Test
+    void updateSubscription_withActiveTrue_andCategory_setsCategory() {
+        AppUserEntity owner = new AppUserEntity();
+        owner.setEmail("user@example.com");
+
+        SubscriptionEntity sub = new SubscriptionEntity();
+        sub.setUser(owner);
+        sub.setActive(true);
+
+        CategoryEntity category = new CategoryEntity();
+
+        SubscriptionDTO dto = new SubscriptionDTO();
+        dto.setActive(true);
+        dto.setCategoryId(5L);
+
+        when(subscriptionRepository.findById(1L)).thenReturn(Optional.of(sub));
+        when(sessionContext.getEmail()).thenReturn("user@example.com");
+        when(categoryRepository.getReferenceById(5L)).thenReturn(category);
+
+        subscriptionService.updateSubscription(1L, dto);
+
+        assertEquals(category, sub.getCategory());
+        verify(subscriptionRepository).save(sub);
     }
 
     @Test

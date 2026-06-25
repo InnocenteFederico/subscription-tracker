@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -34,15 +35,37 @@ class SubscriptionControllerTest {
 
     @Test
     void getSubscriptions_returnsOk() throws Exception {
-        when(subscriptionService.getSubscriptions()).thenReturn(List.of());
+        when(subscriptionService.getSubscriptions(null)).thenReturn(List.of());
 
         mockMvc.perform(get("/api/subscriptions"))
                 .andExpect(status().isOk());
+
+        verify(subscriptionService).getSubscriptions(null);
+    }
+
+    @Test
+    void getSubscriptions_withActiveTrue_passesFilterToService() throws Exception {
+        when(subscriptionService.getSubscriptions(true)).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/subscriptions").param("active", "true"))
+                .andExpect(status().isOk());
+
+        verify(subscriptionService).getSubscriptions(true);
+    }
+
+    @Test
+    void getSubscriptions_withActiveFalse_passesFilterToService() throws Exception {
+        when(subscriptionService.getSubscriptions(false)).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/subscriptions").param("active", "false"))
+                .andExpect(status().isOk());
+
+        verify(subscriptionService).getSubscriptions(false);
     }
 
     @Test
     void addSubscription_callsSaveAndReturnsUpdatedList() throws Exception {
-        when(subscriptionService.getSubscriptions()).thenReturn(List.of());
+        when(subscriptionService.getSubscriptions(true)).thenReturn(List.of());
 
         mockMvc.perform(post("/api/subscriptions")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -53,13 +76,15 @@ class SubscriptionControllerTest {
     }
 
     @Test
-    void deactivateSubscription_callsDeactivateAndReturnsUpdatedList() throws Exception {
-        when(subscriptionService.getSubscriptions()).thenReturn(List.of());
+    void updateSubscription_callsServiceWithIdAndBodyAndReturnsUpdatedList() throws Exception {
+        when(subscriptionService.getSubscriptions(true)).thenReturn(List.of());
 
-        mockMvc.perform(patch("/api/subscriptions/1"))
+        mockMvc.perform(patch("/api/subscriptions/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"active\":false}"))
                 .andExpect(status().isOk());
 
-        verify(subscriptionService).deactivateSubscription(1L);
+        verify(subscriptionService).updateSubscription(eq(1L), any());
     }
 
     @Test

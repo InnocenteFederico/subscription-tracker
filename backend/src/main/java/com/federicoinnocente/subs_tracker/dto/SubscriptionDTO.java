@@ -22,4 +22,5 @@ public class SubscriptionDTO {
     private boolean active;
     private String notes;
     private Long categoryId;
+    private String categoryName;
 }
