@@ -1,0 +1,85 @@
+{
+  "app": {
+    "name": "Subscription Tracker"
+  },
+  "auth": {
+    "fields": {
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Conferma password",
+      "emailPlaceholder": "nome{'@'}esempio.com",
+      "passwordPlaceholder": "••••••••"
+    },
+    "login": {
+      "subtitle": "Accedi al tuo account",
+      "submit": "Accedi",
+      "noAccount": "Non hai un account?",
+      "registerLink": "Registrati",
+      "error": "Email o password non validi"
+    },
+    "register": {
+      "subtitle": "Crea il tuo account",
+      "submit": "Registrati",
+      "hasAccount": "Hai già un account?",
+      "loginLink": "Accedi",
+      "error": "Registrazione non riuscita. Riprova.",
+      "passwordMismatch": "Le password non coincidono"
+    }
+  },
+  "billingCycle": {
+    "WEEKLY": "Settimanale",
+    "MONTHLY": "Mensile",
+    "YEARLY": "Annuale"
+  },
+  "categories": {
+    "title": "Categorie",
+    "back": "Dashboard",
+    "addTitle": "Nuova categoria",
+    "namePlaceholder": "Nome categoria",
+    "color": "Colore",
+    "add": "Aggiungi",
+    "listTitle": "Le tue categorie",
+    "empty": "Nessuna categoria ancora aggiunta.",
+    "edit": "Modifica",
+    "delete": "Elimina",
+    "save": "Salva",
+    "cancel": "Annulla"
+  },
+  "dashboard": {
+    "categories": "Categorie",
+    "logout": "Logout",
+    "subscriptions": {
+      "title": "I tuoi abbonamenti",
+      "colName": "Nome",
+      "colCost": "Costo",
+      "colFrequency": "Frequenza",
+      "colNextBilling": "Prossimo pagamento",
+      "colCategory": "Categoria",
+      "colNotes": "Note",
+      "actionEdit": "Modifica",
+      "actionDeactivate": "Disattiva",
+      "actionAdd": "Aggiungi",
+      "empty": "Nessun abbonamento ancora aggiunto.",
+      "modal": {
+        "titleAdd": "Nuovo abbonamento",
+        "titleEdit": "Modifica abbonamento",
+        "fieldName": "Nome",
+        "fieldAmount": "Importo",
+        "fieldCycle": "Frequenza",
+        "fieldFirstBilling": "Prima data di pagamento",
+        "fieldCategory": "Categoria",
+        "fieldNotes": "Note",
+        "placeholderNotes": "Opzionale...",
+        "noCategory": "Nessuna categoria",
+        "cancel": "Annulla",
+        "confirm": "Salva"
+      }
+    },
+    "stats": {
+      "title": "Statistiche",
+      "byCategory": "Spesa per categoria",
+      "monthly": "Andamento mensile",
+      "placeholder": "Disponibile a breve."
+    }
+  }
+}

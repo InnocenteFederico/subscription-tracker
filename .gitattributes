@@ -1,2 +1,17 @@
-/mvnw text eol=lf
+# Normalizza tutti i file di testo a LF nel repo e al checkout
+* text=auto eol=lf
+
+# Script Windows: mantieni CRLF
 *.cmd text eol=crlf
+*.bat text eol=crlf
+
+# mvnw è uno shell script Unix: deve rimanere LF
+/mvnw text eol=lf
+
+# Binari: non toccare
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.jar binary

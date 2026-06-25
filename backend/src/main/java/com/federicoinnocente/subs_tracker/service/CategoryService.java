@@ -31,4 +31,24 @@ public class CategoryService {
         categoryRepository.save(categoryEntity);
     }
 
+    public void updateCategory(Long id, CategoryDTO dto) {
+        CategoryEntity category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category " + id + " non trovata"));
+        if (!category.getUser().getUserId().equals(sessionContext.getUser().getUserId())) {
+            throw new RuntimeException("Non autorizzato");
+        }
+        category.setName(dto.getName());
+        category.setColor(dto.getColor());
+        categoryRepository.save(category);
+    }
+
+    public void deleteCategory(Long id) {
+        CategoryEntity category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category " + id + " non trovata"));
+        if (!category.getUser().getUserId().equals(sessionContext.getUser().getUserId())) {
+            throw new RuntimeException("Non autorizzato");
+        }
+        categoryRepository.delete(category);
+    }
+
 }

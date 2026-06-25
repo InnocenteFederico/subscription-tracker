@@ -14,7 +14,7 @@ public class StatsController {
 
     private final StatService statsService;
 
-    @GetMapping("summary")
+    @GetMapping("/summary")
     public SummaryDTO getSummary() {
         return statsService.getSummary();
     }

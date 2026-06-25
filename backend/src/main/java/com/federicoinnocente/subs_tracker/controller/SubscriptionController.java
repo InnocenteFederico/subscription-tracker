@@ -16,26 +16,25 @@ public class SubscriptionController {
     private final SubscriptionService subscriptionService;
 
     @GetMapping
-    public List<SubscriptionDTO> getSubscriptions() {
-        return subscriptionService.getSubscriptions();
+    public List<SubscriptionDTO> getSubscriptions(@RequestParam(required = false) Boolean active) {
+        return subscriptionService.getSubscriptions(active);
     }
 
     @PostMapping
     public List<SubscriptionDTO> addSubscription(@RequestBody SubscriptionDTO subscription) {
         subscriptionService.saveSubscription(subscription);
-        return subscriptionService.getSubscriptions();
+        return subscriptionService.getSubscriptions(true);
     }
 
     @PatchMapping("/{id}")
-    public List<SubscriptionDTO> deactivateSubscription(@PathVariable Long id) {
-        subscriptionService.deactivateSubscription(id);
-        return subscriptionService.getSubscriptions();
+    public List<SubscriptionDTO> updateSubscription(@PathVariable Long id, @RequestBody SubscriptionDTO subscription) {
+        subscriptionService.updateSubscription(id, subscription);
+        return subscriptionService.getSubscriptions(true);
     }
 
     @GetMapping("/upcoming")
     public List<SubscriptionDTO> getUpcomingSubscriptions(@RequestParam(defaultValue = "30") int days) {
         return subscriptionService.getUpcomingSubscriptions(days);
     }
-
 
 }

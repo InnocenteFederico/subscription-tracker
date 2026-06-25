@@ -13,8 +13,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -40,6 +42,92 @@ public class CategoryServiceTest {
 
         assertEquals(user, entity.getUser());
         verify(categoryRepository).save(entity);
+    }
+
+    @Test
+    void updateCategory_updatesFieldsAndSaves() {
+        AppUserEntity owner = new AppUserEntity();
+        owner.setUserId(1L);
+
+        CategoryEntity entity = new CategoryEntity();
+        entity.setUser(owner);
+
+        CategoryDTO dto = new CategoryDTO();
+        dto.setName("Updated");
+        dto.setColor("#00FF00");
+
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(entity));
+        when(sessionContext.getUser()).thenReturn(owner);
+
+        categoryService.updateCategory(1L, dto);
+
+        assertEquals("Updated", entity.getName());
+        assertEquals("#00FF00", entity.getColor());
+        verify(categoryRepository).save(entity);
+    }
+
+    @Test
+    void updateCategory_throwsWhenNotFound() {
+        when(categoryRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> categoryService.updateCategory(99L, new CategoryDTO()));
+    }
+
+    @Test
+    void updateCategory_throwsWhenUserDoesNotOwn() {
+        AppUserEntity owner = new AppUserEntity();
+        owner.setUserId(1L);
+
+        AppUserEntity other = new AppUserEntity();
+        other.setUserId(2L);
+
+        CategoryEntity entity = new CategoryEntity();
+        entity.setUser(owner);
+
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(entity));
+        when(sessionContext.getUser()).thenReturn(other);
+
+        assertThrows(RuntimeException.class, () -> categoryService.updateCategory(1L, new CategoryDTO()));
+    }
+
+    @Test
+    void deleteCategory_deletesEntity() {
+        AppUserEntity owner = new AppUserEntity();
+        owner.setUserId(1L);
+
+        CategoryEntity entity = new CategoryEntity();
+        entity.setUser(owner);
+
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(entity));
+        when(sessionContext.getUser()).thenReturn(owner);
+
+        categoryService.deleteCategory(1L);
+
+        verify(categoryRepository).delete(entity);
+    }
+
+    @Test
+    void deleteCategory_throwsWhenNotFound() {
+        when(categoryRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> categoryService.deleteCategory(99L));
+    }
+
+    @Test
+    void deleteCategory_throwsWhenUserDoesNotOwn() {
+        AppUserEntity owner = new AppUserEntity();
+        owner.setUserId(1L);
+
+        AppUserEntity other = new AppUserEntity();
+        other.setUserId(2L);
+
+        CategoryEntity entity = new CategoryEntity();
+        entity.setUser(owner);
+
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(entity));
+        when(sessionContext.getUser()).thenReturn(other);
+
+        assertThrows(RuntimeException.class, () -> categoryService.deleteCategory(1L));
     }
 
     @Test
